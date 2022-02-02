@@ -1,0 +1,7 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<p>@CultureInfo.CurrentCulture.Name</p>
+<p>@localizer["Home"]</p>
+<a asp-action="About" asp-controller="Home">about</a>
