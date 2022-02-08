@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace SampleLocalization
 {
@@ -64,10 +65,14 @@ namespace SampleLocalization
                 options.ConstraintMap.Add("culture", typeof(LanguageRouteConstraint));
             });
 
+
+            //Service zir agar nabashe error mikhore . fght gozashtam run beshe
+            services.AddScoped<RequestLocalizationOptions, RequestLocalizationOptions>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env , RequestLocalizationOptions localizationOptions)
         {
             if (env.IsDevelopment())
             {
@@ -93,8 +98,23 @@ namespace SampleLocalization
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{culture:culture}/{controller=Home}/{action=Index}/{id?}");
+                    "default",
+                    "{culture:culture}/{controller=Home}/{action=Index}/{id?}");
+                
+                endpoints.MapGet("{culture:culture}/{*path}", appBuilder =>
+                {
+                    // inja darkhasthaee miad ke culture daran ama be hichkodum az contoller ha naraftan
+                    return Task.CompletedTask;
+                });
+                endpoints.MapGet("{*path}", (RequestDelegate)(ctx =>
+                {
+                    // injam darkhasthaee ke culture nadaran redirect mishan be clture pish farz
+                    var defaultCulture = localizeOptions.Value.DefaultRequestCulture.Culture.Name;
+                    var path = ctx.GetRouteValue("path") ?? string.Empty;
+                    var culturedPath = $"/{defaultCulture}/{path}";
+                    ctx.Response.Redirect(culturedPath);
+                    return Task.CompletedTask;
+                }));
             });
         }
     }

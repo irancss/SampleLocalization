@@ -8,17 +8,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 
 namespace SampleLocalization.Controllers
 {
-    [Route("{culture:culture}/[controller]/[action]")]
+    //[Route("{culture:culture}")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly RequestLocalizationOptions _requestLocalization;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, RequestLocalizationOptions requestLocalization)
         {
             _logger = logger;
+            _requestLocalization = requestLocalization;
         }
         public IActionResult Index()
         {
